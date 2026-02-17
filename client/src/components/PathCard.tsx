@@ -80,6 +80,10 @@ const PathCard = ({ path, onRefresh }: PathCardProps) => {
         {path.description}
       </p>
 
+      <div className="pt-4 border-t border-slate-100 text-xs text-slate-400">
+        Added on {new Date(path.createdAt).toLocaleDateString()}
+      </div>
+
       {/* MODALS */}
       <EditPathModal
         isOpen={showEdit}
