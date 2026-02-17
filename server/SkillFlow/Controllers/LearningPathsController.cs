@@ -22,12 +22,8 @@ public class LearningPathsController : ControllerBase
     public async Task<ActionResult<IEnumerable<LearningPathDto>>> GetPaths()
     {
         var paths = await this
-            .dbContext.LearningPaths.Select(p => new LearningPathDto(
-                p.Id,
-                p.Title,
-                p.Description,
-                p.CreatedAt
-            ))
+            .dbContext.LearningPaths.OrderBy(p => p.Id)
+            .Select(p => new LearningPathDto(p.Id, p.Title, p.Description, p.CreatedAt))
             .ToListAsync();
 
         return Ok(paths);
