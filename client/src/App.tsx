@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { LearningPath } from "./types";
+import { LearningPath, SortOption } from "./types";
 import AddPathModal from "./components/AddPathModal";
 import PathCard from "./components/PathCard";
 import StatCard from "./components/StatCard";
 import { useUI } from "./context/UIContext";
-
-type SortOption = "newest" | "oldest" | "alphabetical";
 
 const App = () => {
   const [paths, setPaths] = useState<LearningPath[]>([]);

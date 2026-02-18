@@ -6,9 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import { createPortal } from "react-dom";
-
-type Theme = "light" | "dark";
-type ToastType = "success" | "error";
+import { Theme, ToastType } from "../types";
 
 interface UIContextType {
   theme: Theme;
@@ -19,7 +17,16 @@ interface UIContextType {
 const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export const UIProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>("light");
+  // Initialize theme from localStorage or system preference
+  const [theme, setTheme] = useState<Theme>(() => {
+    const saved = localStorage.getItem("skillflow-theme");
+    if (saved === "light" || saved === "dark") return saved;
+
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  });
+
   const [toast, setToast] = useState<{
     message: string;
     type: ToastType;
@@ -34,6 +41,7 @@ export const UIProvider = ({ children }: { children: React.ReactNode }) => {
     } else {
       root.classList.remove("dark");
     }
+    localStorage.setItem("skillflow-theme", theme);
   }, [theme]);
 
   const toggleTheme = () => {
