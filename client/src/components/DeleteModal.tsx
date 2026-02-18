@@ -21,15 +21,17 @@ const DeleteModal = ({
         className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
         onClick={onClose}
       ></div>
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 text-center border border-red-100">
-        <h2 className="text-xl font-bold text-slate-900 mb-2">Delete Path?</h2>
-        <p className="text-slate-500 mb-6 text-sm">
+      <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm p-8 text-center border border-red-100 dark:border-red-900">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+          Delete Path?
+        </h2>
+        <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm">
           Are you sure you want to delete <b>"{title}"</b>?
         </p>
         <div className="flex space-x-3">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 text-slate-600 font-semibold hover:bg-slate-100 rounded-lg"
+            className="flex-1 px-4 py-2 text-slate-600 font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"
           >
             Cancel
           </button>

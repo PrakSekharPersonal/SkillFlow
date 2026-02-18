@@ -3,6 +3,7 @@ import axios from "axios";
 import { LearningPath } from "../types";
 import EditPathModal from "./EditPathModal";
 import DeleteModal from "./DeleteModal";
+import { useUI } from "../context/UIContext";
 
 interface PathCardProps {
   path: LearningPath;
@@ -13,9 +14,13 @@ const PathCard = ({ path, onRefresh }: PathCardProps) => {
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
 
+  const { showToast } = useUI();
+
   const confirmDelete = async () => {
     try {
       await axios.delete(`http://localhost:5142/api/learningpaths/${path.id}`);
+      showToast("Path Deleted Successfully", "error");
+
       onRefresh();
       setShowDelete(false);
     } catch (err) {
@@ -24,7 +29,7 @@ const PathCard = ({ path, onRefresh }: PathCardProps) => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+    <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
       <div className="flex justify-between items-start mb-4">
         <span className="bg-blue-50 text-blue-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase">
           Path #{path.id}
@@ -75,12 +80,14 @@ const PathCard = ({ path, onRefresh }: PathCardProps) => {
         </div>
       </div>
 
-      <h2 className="text-xl font-bold text-slate-800 mb-2">{path.title}</h2>
-      <p className="text-slate-600 text-sm mb-4 line-clamp-2">
+      <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">
+        {path.title}
+      </h2>
+      <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-2">
         {path.description}
       </p>
 
-      <div className="pt-4 border-t border-slate-100 text-xs text-slate-400">
+      <div className="pt-4 border-t border-slate-100 dark:border-slate-700 text-xs text-slate-400 dark:text-slate-500">
         Added on {new Date(path.createdAt).toLocaleDateString()}
       </div>
 

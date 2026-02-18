@@ -4,6 +4,7 @@ import { LearningPath } from "./types";
 import AddPathModal from "./components/AddPathModal";
 import PathCard from "./components/PathCard";
 import StatCard from "./components/StatCard";
+import { useUI } from "./context/UIContext";
 
 type SortOption = "newest" | "oldest" | "alphabetical";
 
@@ -15,6 +16,7 @@ const App = () => {
   const [sortOrder, setSortOrder] = useState<SortOption>("newest");
 
   const API_URL = "http://localhost:5142/api/learningpaths";
+  const { theme, toggleTheme } = useUI();
 
   const fetchPaths = useCallback(async () => {
     try {
@@ -72,8 +74,8 @@ const App = () => {
   }, [paths, searchQuery, sortOrder]);
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans text-slate-900">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300">
+      <div className="max-w-6xl mx-auto p-6 md:p-12">
         {/* HEADER AREA */}
         <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
@@ -84,12 +86,20 @@ const App = () => {
               Your technical roadmap, visualized.
             </p>
           </div>
-          <button
-            onClick={() => setShowModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg hover:shadow-blue-200 active:scale-95"
-          >
-            + New Path
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg hover:shadow-blue-200 active:scale-95"
+            >
+              + New Path
+            </button>
+            <button
+              onClick={toggleTheme}
+              className="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm text-xl"
+            >
+              {theme === "light" ? "🌙" : "☀️"}
+            </button>
+          </div>
         </header>
 
         {/* STATS CARDS */}
@@ -116,7 +126,7 @@ const App = () => {
         </div>
 
         {/* TOOLBAR: SEARCH & SORT */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-8 flex flex-col md:flex-row gap-4 items-center">
+        <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm mb-8 flex flex-col md:flex-row gap-4 items-center">
           <div className="relative flex-1 w-full">
             <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
               <svg
@@ -137,7 +147,7 @@ const App = () => {
             <input
               type="text"
               placeholder="Filter by title or keywords..."
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -148,11 +158,11 @@ const App = () => {
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as SortOption)}
-                className="w-full pl-4 pr-10 py-2 bg-slate-50 border border-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none appearance-none cursor-pointer font-medium"
+                className="w-full pl-4 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none appearance-none cursor-pointer font-medium"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
-                <option value="alphabetical">Alphabetical (A-Z)</option>
+                <option value="alphabetical">Alphabetical</option>
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                 <svg

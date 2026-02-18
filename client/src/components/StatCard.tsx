@@ -16,18 +16,18 @@ const StatCard = ({
   isText = false,
 }: StateCardProps) => {
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+    <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
       <div
         className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl ${color}`}
       >
         {icon}
       </div>
       <div>
-        <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">
+        <p className="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
           {title}
         </p>
         <p
-          className={`font-extrabold text-slate-800 ${isText ? "text-base truncate max-w-[150px]" : "text-2xl"}`}
+          className={`font-extrabold text-slate-800 dark:text-slate-100 ${isText ? "text-base truncate max-w-[150px]" : "text-2xl"}`}
         >
           {value}
         </p>
