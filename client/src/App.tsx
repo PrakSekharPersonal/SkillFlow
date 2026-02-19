@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { LearningPath, SortOption } from "./types";
+import { LearningPath, SortByOrder, SortByStatus } from "./types";
 import AddPathModal from "./components/AddPathModal";
 import PathCard from "./components/PathCard";
 import StatCard from "./components/StatCard";
@@ -11,7 +11,8 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<SortOption>("newest");
+  const [sortOrder, setSortOrder] = useState<SortByOrder>("newest");
+  const [sortStatus, setSortStatus] = useState<SortByStatus>("all");
 
   const API_URL = "http://localhost:5142/api/learningpaths";
   const { theme, toggleTheme } = useUI();
@@ -55,21 +56,28 @@ const App = () => {
 
   // Process the learning paths with filters, if any selected. Then sort based on the selected order.
   const processedPaths = useMemo(() => {
-    let result = paths.filter(
-      (path) =>
+    const filteredPaths = paths.filter((path) => {
+      const matchesSearch =
         path.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (path.description?.toLowerCase() || "").includes(
           searchQuery.toLowerCase(),
-        ),
-    );
+        );
+      const matchesStatus =
+        sortStatus === "all"
+          ? true
+          : sortStatus === "completed"
+            ? path.isCompleted
+            : !path.isCompleted;
+      return matchesSearch && matchesStatus;
+    });
 
-    return result.sort((a, b) => {
+    return filteredPaths.sort((a, b) => {
       if (sortOrder === "newest") return b.id - a.id;
       if (sortOrder === "oldest") return a.id - b.id;
       if (sortOrder === "alphabetical") return a.title.localeCompare(b.title);
       return 0;
     });
-  }, [paths, searchQuery, sortOrder]);
+  }, [paths, searchQuery, sortOrder, sortStatus]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300">
@@ -124,7 +132,7 @@ const App = () => {
         </div>
 
         {/* TOOLBAR: SEARCH & SORT */}
-        <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm mb-8 flex flex-col md:flex-row gap-4 items-center">
+        <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm mb-8 flex flex-col lg:flex-row gap-4 items-center">
           <div className="relative flex-1 w-full">
             <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
               <svg
@@ -151,18 +159,48 @@ const App = () => {
             />
           </div>
 
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            <div className="relative w-full md:w-48">
+          <div className="flex flex-row items-center gap-3 w-full lg:w-auto">
+            {/* SORT BY STATUS */}
+            <div className="relative flex-1 lg:w-40">
+              <select
+                value={sortStatus}
+                onChange={(e) => setSortStatus(e.target.value as SortByStatus)}
+                className="w-full pl-4 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer text-sm font-medium"
+              >
+                <option value="all">All Paths</option>
+                <option value="active">🔥 Active</option>
+                <option value="completed">✅ Completed</option>
+              </select>
+              <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* SORT BY ORDER */}
+            <div className="relative flex-1 lg:w-44">
               <select
                 value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value as SortOption)}
-                className="w-full pl-4 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none appearance-none cursor-pointer font-medium"
+                onChange={(e) => setSortOrder(e.target.value as SortByOrder)}
+                className="w-full pl-4 pr-10 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer text-sm font-medium"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
                 <option value="alphabetical">Alphabetical</option>
               </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+              <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-4 w-4"

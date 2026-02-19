@@ -23,7 +23,13 @@ public class LearningPathsController : ControllerBase
     {
         var paths = await this
             .dbContext.LearningPaths.OrderBy(p => p.Id)
-            .Select(p => new LearningPathDto(p.Id, p.Title, p.Description, p.CreatedAt))
+            .Select(p => new LearningPathDto(
+                p.Id,
+                p.Title,
+                p.Description,
+                p.CreatedAt,
+                p.IsCompleted
+            ))
             .ToListAsync();
 
         return Ok(paths);
@@ -38,6 +44,7 @@ public class LearningPathsController : ControllerBase
         {
             Title = createDto.Title,
             Description = createDto.Description,
+            IsCompleted = createDto.IsCompleted || false,
         };
 
         // Save to database
@@ -49,7 +56,8 @@ public class LearningPathsController : ControllerBase
             path.Id,
             path.Title,
             path.Description,
-            path.CreatedAt
+            path.CreatedAt,
+            path.IsCompleted
         );
 
         // Return 201 Created with the new resource
@@ -70,6 +78,7 @@ public class LearningPathsController : ControllerBase
         // Update the fields
         path.Title = updateDto.Title;
         path.Description = updateDto.Description;
+        path.IsCompleted = updateDto.IsCompleted;
 
         // Save changes to the database
         try
