@@ -90,7 +90,37 @@ public class LearningPathsController : ControllerBase
         );
 
         // Return 201 Created with the new resource
-        return CreatedAtAction(nameof(GetPaths), new { id = path.Id }, responseDto);
+        return CreatedAtAction(nameof(GetPath), new { id = path.Id }, responseDto);
+    }
+
+    // POST: api/learningpaths/{id}/milestones - Use ActionResult to return the created milestone.
+    [HttpPost("{id}/milestones")]
+    public async Task<ActionResult<Milestone>> AddMilestone(int id, Milestone milestone)
+    {
+        var pathExists = await this.dbContext.LearningPaths.AnyAsync(p => p.Id == id);
+        if (!pathExists)
+            return NotFound("Learning path not found.");
+
+        milestone.LearningPathId = id;
+        this.dbContext.Milestones.Add(milestone);
+        await this.dbContext.SaveChangesAsync();
+
+        return Ok(milestone);
+    }
+
+    // POST: api/learningpaths/{id}/resourcelinks - Use ActionResult to return the created resource link.
+    [HttpPost("{id}/resourcelinks")]
+    public async Task<ActionResult<ResourceLink>> AddResourceLink(int id, ResourceLink resourceLink)
+    {
+        var pathExists = await this.dbContext.LearningPaths.AnyAsync(p => p.Id == id);
+        if (!pathExists)
+            return NotFound("Learning path not found.");
+
+        resourceLink.LearningPathId = id;
+        this.dbContext.ResourceLinks.Add(resourceLink);
+        await this.dbContext.SaveChangesAsync();
+
+        return Ok(resourceLink);
     }
 
     // PUT: api/learningpaths/{id} - Use IActionResult as we are not returning any content, just status codes.
@@ -117,6 +147,32 @@ public class LearningPathsController : ControllerBase
         catch (DbUpdateConcurrencyException)
         {
             // This handles cases where two people try to update the same row at the exact same time
+            return Conflict("The record was modified by another user.");
+        }
+
+        return NoContent();
+    }
+
+    [HttpPut("{id}/milestones/{milestoneId}")]
+    public async Task<IActionResult> UpdateMilestone(int id, int milestoneId, Milestone milestone)
+    {
+        // Check if the milestone exists and if it belongs to the correct path
+        var existingMilestone = await this.dbContext.Milestones.FindAsync(milestoneId);
+        if (existingMilestone == null || existingMilestone.LearningPathId != id)
+        {
+            return NotFound("Milestone not found for this path.");
+        }
+
+        // Update the IsCompleted status
+        existingMilestone.IsCompleted = milestone.IsCompleted;
+
+        // Save changes to the database
+        try
+        {
+            await this.dbContext.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
             return Conflict("The record was modified by another user.");
         }
 

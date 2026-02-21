@@ -3,6 +3,7 @@
         "Dtos",
         "Npgsql",
         "learningpaths",
+        "resourcelinks",
         "skillflow"
     ]
 }
