@@ -17,7 +17,7 @@ public class LearningPathsController : ControllerBase
         this.dbContext = dbContext;
     }
 
-    // GET: api/learningpaths
+    // GET: api/learningpaths - Use ActionResult as we are returning a list of paths.
     [HttpGet]
     public async Task<ActionResult<IEnumerable<LearningPathDto>>> GetPaths()
     {
@@ -28,14 +28,41 @@ public class LearningPathsController : ControllerBase
                 p.Title,
                 p.Description,
                 p.CreatedAt,
-                p.IsCompleted
+                p.IsCompleted,
+                p.Milestones,
+                p.ResourceLinks
             ))
             .ToListAsync();
 
         return Ok(paths);
     }
 
-    // POST: api/learningpaths
+    // GET: api/learningpaths/{id} - Use ActionResult to return the path or a 404 if not found.
+    [HttpGet("{id}")]
+    public async Task<ActionResult<LearningPathDto>> GetPath(int id)
+    {
+        var path = await this
+            .dbContext.LearningPaths.Include(p => p.Milestones)
+            .Include(p => p.ResourceLinks)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (path == null)
+            return NotFound();
+
+        // Map Model to Dto for sending the response to the frontend
+        var pathDto = new LearningPathDto(
+            path.Id,
+            path.Title,
+            path.Description,
+            path.CreatedAt,
+            path.IsCompleted,
+            path.Milestones,
+            path.ResourceLinks
+        );
+        return Ok(pathDto);
+    }
+
+    // POST: api/learningpaths - Use ActionResult to return the created resource.
     [HttpPost]
     public async Task<ActionResult<LearningPathDto>> CreatePath(CreateLearningPathDto createDto)
     {
@@ -57,14 +84,16 @@ public class LearningPathsController : ControllerBase
             path.Title,
             path.Description,
             path.CreatedAt,
-            path.IsCompleted
+            path.IsCompleted,
+            path.Milestones,
+            path.ResourceLinks
         );
 
         // Return 201 Created with the new resource
         return CreatedAtAction(nameof(GetPaths), new { id = path.Id }, responseDto);
     }
 
-    // PUT: api/learningpaths/{id}
+    // PUT: api/learningpaths/{id} - Use IActionResult as we are not returning any content, just status codes.
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdatePath(int id, CreateLearningPathDto updateDto)
     {
@@ -94,7 +123,7 @@ public class LearningPathsController : ControllerBase
         return NoContent();
     }
 
-    // DELETE: api/learningpaths/{id}
+    // DELETE: api/learningpaths/{id} - Use IActionResult as we are not returning any content, just status codes.
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeletePath(int id)
     {

@@ -16,5 +16,9 @@ namespace SkillFlow.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public bool IsCompleted { get; set; } = false;
+
+        public List<Milestone> Milestones { get; set; } = new();
+
+        public List<ResourceLink> ResourceLinks { get; set; } = new();
     }
 }

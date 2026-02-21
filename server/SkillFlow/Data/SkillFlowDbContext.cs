@@ -9,5 +9,9 @@ namespace SkillFlow.Data
             : base(options) { }
 
         public DbSet<LearningPath> LearningPaths => Set<LearningPath>();
+
+        public DbSet<Milestone> Milestones => Set<Milestone>();
+
+        public DbSet<ResourceLink> ResourceLinks => Set<ResourceLink>();
     }
 }

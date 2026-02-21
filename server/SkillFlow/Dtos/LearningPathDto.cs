@@ -1,3 +1,5 @@
+using SkillFlow.Models;
+
 namespace SkillFlow.Dtos
 {
     // This is what we send to the React frontend. It can be different from the LearningPath model, which is what we store in the database.
@@ -8,7 +10,9 @@ namespace SkillFlow.Dtos
         string Title,
         string? Description,
         DateTime CreatedAt,
-        bool IsCompleted
+        bool IsCompleted,
+        List<Milestone> Milestones,
+        List<ResourceLink> ResourceLinks
     );
 
     // This is what we receive from the React frontend.

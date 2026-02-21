@@ -4,6 +4,7 @@ import { LearningPath } from "../types";
 import EditPathModal from "./EditPathModal";
 import DeleteModal from "./DeleteModal";
 import { useUI } from "../context/UIContext";
+import { useNavigate } from "react-router-dom";
 
 interface PathCardProps {
   path: LearningPath;
@@ -15,8 +16,10 @@ const PathCard = ({ path, onRefresh }: PathCardProps) => {
   const [showDelete, setShowDelete] = useState(false);
 
   const { showToast } = useUI();
+  const navigate = useNavigate();
 
-  const toggleComplete = async () => {
+  const toggleComplete = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click event
     try {
       await axios.put(`http://localhost:5142/api/learningpaths/${path.id}`, {
         ...path,
@@ -45,8 +48,15 @@ const PathCard = ({ path, onRefresh }: PathCardProps) => {
     }
   };
 
+  const handleCardClick = () => {
+    navigate(`/path/${path.id}`);
+  };
+
   return (
-    <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+    <div
+      onClick={handleCardClick}
+      className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full cursor-pointer"
+    >
       <div className="flex justify-between items-start mb-4">
         <span className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-bold px-2 py-2 rounded-full uppercase">
           Path #{path.id}
@@ -55,6 +65,7 @@ const PathCard = ({ path, onRefresh }: PathCardProps) => {
         {/* STATUS + ACTION BUTTONS */}
         <div className="flex items-center gap-3">
           <label
+            onClick={(e) => e.stopPropagation()} // Prevent card click event
             className={`flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer transition-colors
       ${
         path.isCompleted
@@ -68,7 +79,8 @@ const PathCard = ({ path, onRefresh }: PathCardProps) => {
             <input
               type="checkbox"
               checked={path.isCompleted}
-              onChange={toggleComplete}
+              onChange={() => {}} // Handled by label click above to easily capture the event
+              onClick={toggleComplete}
               className="w-4 h-4 rounded border-none bg-white/50 dark:bg-black/20 text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer"
             />
           </label>
@@ -76,8 +88,11 @@ const PathCard = ({ path, onRefresh }: PathCardProps) => {
           {/* EDIT & DELETE BUTTONS */}
           <div className="flex bg-slate-100 dark:bg-slate-700/50 p-1 rounded-lg">
             <button
-              onClick={() => setShowEdit(true)}
-              className="text-slate-400 hover:text-blue-600 p-1 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowEdit(true);
+              }}
+              className="text-slate-400 hover:text-blue-600 p-1 transition-colors cursor-pointer"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -95,8 +110,11 @@ const PathCard = ({ path, onRefresh }: PathCardProps) => {
               </svg>
             </button>
             <button
-              onClick={() => setShowDelete(true)}
-              className="text-slate-400 hover:text-red-500 p-1 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDelete(true);
+              }}
+              className="text-slate-400 hover:text-red-500 p-1 transition-colors cursor-pointer"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -131,18 +149,20 @@ const PathCard = ({ path, onRefresh }: PathCardProps) => {
         <span>Added on {new Date(path.createdAt).toLocaleDateString()}</span>
       </div>
 
-      <EditPathModal
-        isOpen={showEdit}
-        onClose={() => setShowEdit(false)}
-        onSuccess={onRefresh}
-        path={path}
-      />
-      <DeleteModal
-        isOpen={showDelete}
-        onClose={() => setShowDelete(false)}
-        onConfirm={confirmDelete}
-        title={path.title}
-      />
+      <div onClick={(e) => e.stopPropagation()}>
+        <EditPathModal
+          isOpen={showEdit}
+          onClose={() => setShowEdit(false)}
+          onSuccess={onRefresh}
+          path={path}
+        />
+        <DeleteModal
+          isOpen={showDelete}
+          onClose={() => setShowDelete(false)}
+          onConfirm={confirmDelete}
+          title={path.title}
+        />
+      </div>
     </div>
   );
 };
