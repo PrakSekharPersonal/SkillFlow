@@ -75,7 +75,7 @@ export const UIProvider = ({ children }: { children: React.ReactNode }) => {
                 className={`px-6 py-3 rounded-xl shadow-2xl text-white font-bold animate-bounce-in flex items-center gap-3
                 ${toast.type === "success" ? "bg-emerald-500" : "bg-red-500"}`}
               >
-                <span>{toast.type === "success" ? "✅" : "🗑️"}</span>
+                <span>{toast.type === "success" ? "✅" : "🚫"}</span>
                 {toast.message}
               </div>
             ))}

@@ -39,12 +39,13 @@ const PathCard = ({ path, onRefresh }: PathCardProps) => {
   const confirmDelete = async () => {
     try {
       await axios.delete(`http://localhost:5142/api/learningpaths/${path.id}`);
-      showToast("Path Deleted Successfully", "error");
+      showToast("Path Deleted Successfully", "success");
 
       onRefresh();
       setShowDelete(false);
     } catch (err) {
       console.error(err);
+      showToast("Failed to delete path", "error");
     }
   };
 

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { LearningPath, SortByOrder, SortByStatus } from "../types";
 import AddPathModal from "../components/AddPathModal";
+import DashboardMetrics from "../components/DashboardMetrics";
 import PathCard from "../components/PathCard";
 import StatCard from "../components/StatCard";
 import { useUI } from "../context/UIContext";
@@ -130,6 +131,9 @@ const Dashboard = () => {
             isText
           />
         </div>
+
+        {/* NEW METRICS VISUALIZATION */}
+        <DashboardMetrics paths={paths} />
 
         {/* TOOLBAR: SEARCH & SORT */}
         <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm mb-8 flex flex-col lg:flex-row gap-4 items-center">
