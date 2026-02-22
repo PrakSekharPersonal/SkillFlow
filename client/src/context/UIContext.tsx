@@ -14,6 +14,12 @@ interface UIContextType {
   showToast: (message: string, type: ToastType) => void;
 }
 
+interface ToastMessage {
+  id: string;
+  message: string;
+  type: ToastType;
+}
+
 const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export const UIProvider = ({ children }: { children: React.ReactNode }) => {
@@ -27,10 +33,7 @@ export const UIProvider = ({ children }: { children: React.ReactNode }) => {
       : "light";
   });
 
-  const [toast, setToast] = useState<{
-    message: string;
-    type: ToastType;
-  } | null>(null);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   // Sync the theme to the HTML root element so that Tailwind's dark: classes work correctly.
   // This ensures components with createPortal also get the correct theme styles, since they are outside the normal React tree.
@@ -50,8 +53,13 @@ export const UIProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const showToast = useCallback((message: string, type: ToastType) => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000); // Auto-hide toast after 3s
+    const id = crypto.randomUUID();
+    setToasts((prev) => [...prev, { id, message, type }]);
+
+    setTimeout(
+      () => setToasts((prev) => prev.filter((t) => t.id !== id)),
+      3000, // Auto-hide toast after 3s
+    );
   }, []);
 
   return (
@@ -59,17 +67,21 @@ export const UIProvider = ({ children }: { children: React.ReactNode }) => {
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300">
         {children}
 
-        {toast &&
-          createPortal(
-            <div
-              className={`fixed bottom-8 right-8 px-6 py-3 rounded-xl shadow-2xl text-white dark:text-slate-900 font-bold animate-bounce-in z-[200] flex items-center gap-3
-              ${toast.type === "success" ? "bg-emerald-500" : "bg-red-500"}`}
-            >
-              <span>{toast.type === "success" ? "✅" : "🗑️"}</span>
-              {toast.message}
-            </div>,
-            document.body,
-          )}
+        {createPortal(
+          <div className="fixed bottom-8 right-8 z-[200] flex flex-col gap-3">
+            {toasts.map((toast) => (
+              <div
+                key={toast.id}
+                className={`px-6 py-3 rounded-xl shadow-2xl text-white font-bold animate-bounce-in flex items-center gap-3
+                ${toast.type === "success" ? "bg-emerald-500" : "bg-red-500"}`}
+              >
+                <span>{toast.type === "success" ? "✅" : "🗑️"}</span>
+                {toast.message}
+              </div>
+            ))}
+          </div>,
+          document.body,
+        )}
       </div>
     </UIContext.Provider>
   );

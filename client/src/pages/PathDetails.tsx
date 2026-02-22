@@ -97,6 +97,28 @@ const PathDetails = () => {
     }
   };
 
+  const handleDeleteMilestone = async (milestoneId: number) => {
+    try {
+      await axios.delete(`${API_URL}/milestones/${milestoneId}`);
+      fetchPathDetails();
+      showToast("Milestone deleted successfully", "success");
+    } catch (err) {
+      console.error("Delete Milestone Error:", err);
+      showToast("Failed to delete milestone", "error");
+    }
+  };
+
+  const handleDeleteLink = async (linkId: number) => {
+    try {
+      await axios.delete(`${API_URL}/resourcelinks/${linkId}`);
+      fetchPathDetails();
+      showToast("Resource link deleted successfully", "success");
+    } catch (err) {
+      console.error("Delete Resource Link Error:", err);
+      showToast("Failed to delete resource link", "error");
+    }
+  };
+
   if (loading)
     return <div className="text-center py-20 dark:text-white">Loading...</div>;
   if (!path)
@@ -112,6 +134,8 @@ const PathDetails = () => {
     : totalMilestones === 0
       ? 0
       : Math.round((completedMilestones / totalMilestones) * 100);
+  const pathCompleted =
+    path.isCompleted || completedMilestones === totalMilestones;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 md:p-12 transition-colors duration-300">
@@ -132,14 +156,14 @@ const PathDetails = () => {
 
           {/* Progress Bar */}
           <div className="mb-2 flex justify-between text-sm font-bold text-slate-500">
-            <span>{path.isCompleted ? "Path Completed 🏆" : "Progress"}</span>
-            <span className={path.isCompleted ? "text-emerald-500" : ""}>
+            <span>{pathCompleted ? "Path Completed 🏆" : "Progress"}</span>
+            <span className={pathCompleted ? "text-emerald-500" : ""}>
               {progressPercent}%
             </span>
           </div>
           <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
             <div
-              className={`h-3 rounded-full transition-all duration-500 ${path.isCompleted ? "bg-emerald-500" : "bg-blue-600"}`}
+              className={`h-3 rounded-full transition-all duration-500 ${pathCompleted ? "bg-emerald-500" : "bg-blue-600"}`}
               style={{ width: `${progressPercent}%` }}
             ></div>
           </div>
@@ -185,24 +209,45 @@ const PathDetails = () => {
                 path.milestones?.map((m) => (
                   <div
                     key={m.id}
-                    className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-slate-600 transition"
+                    className="group flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-slate-600 transition"
                   >
-                    <input
-                      type="checkbox"
-                      onChange={() => handleToggleMilestone(m)}
-                      checked={m.isCompleted}
-                      readOnly
-                      className="w-5 h-5 rounded text-blue-600 cursor-pointer"
-                    />
-                    <span
-                      className={
-                        m.isCompleted || path.isCompleted
-                          ? "line-through text-slate-400"
-                          : ""
-                      }
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={m.isCompleted}
+                        onChange={() => handleToggleMilestone(m)}
+                        className="w-5 h-5 rounded text-blue-600 cursor-pointer disabled:opacity-50 shrink-0"
+                      />
+                      <span
+                        className={
+                          m.isCompleted || path.isCompleted
+                            ? "line-through text-slate-400"
+                            : ""
+                        }
+                      >
+                        {m.title}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteMilestone(m.id)}
+                      className="text-slate-300 dark:text-slate-500 opacity-0 group-hover:opacity-100 hover:!text-red-500 transition-all cursor-pointer p-1"
+                      title="Delete Milestone"
                     >
-                      {m.title}
-                    </span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                    </button>
                   </div>
                 ))
               )}
@@ -255,15 +300,39 @@ const PathDetails = () => {
                 <p className="text-slate-400 text-sm">No resources yet.</p>
               ) : (
                 path.resourceLinks?.map((link) => (
-                  <a
+                  <div
                     key={link.id}
-                    href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-blue-600 dark:text-blue-400 hover:underline truncate border border-transparent hover:border-slate-200 dark:hover:border-slate-600 transition"
+                    className="group flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-slate-600 transition"
                   >
-                    🔗 {link.title}
-                  </a>
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-600 dark:text-blue-400 hover:underline truncate flex-1"
+                    >
+                      🔗 {link.title}
+                    </a>
+                    <button
+                      onClick={() => handleDeleteLink(link.id)}
+                      className="text-slate-300 dark:text-slate-500 opacity-0 group-hover:opacity-100 hover:!text-red-500 transition-all cursor-pointer p-1 ml-4"
+                      title="Delete Resource"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 ))
               )}
             </div>

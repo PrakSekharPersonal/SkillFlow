@@ -196,4 +196,40 @@ public class LearningPathsController : ControllerBase
 
         return NoContent();
     }
+
+    // DELETE: api/learningpaths/{id}/milestones/{milestoneId} - Use IActionResult as we are not returning any content, just status codes.
+    [HttpDelete("{id}/milestones/{milestoneId}")]
+    public async Task<IActionResult> DeleteMilestone(int id, int milestoneId)
+    {
+        // Check if the milestone exists and if it belongs to the correct path
+        var existingMilestone = await this.dbContext.Milestones.FindAsync(milestoneId);
+        if (existingMilestone == null || existingMilestone.LearningPathId != id)
+        {
+            return NotFound("Milestone not found for this path.");
+        }
+
+        // Delete the milestone
+        this.dbContext.Milestones.Remove(existingMilestone);
+        await this.dbContext.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    // DELETE: api/learningpaths/{id}/resourcelinks/{resourceLinkId} - Use IActionResult as we are not returning any content, just status codes.
+    [HttpDelete("{id}/resourcelinks/{resourceLinkId}")]
+    public async Task<IActionResult> DeleteResourceLink(int id, int resourceLinkId)
+    {
+        // Check if the resource link exists and if it belongs to the correct path
+        var existingResourceLink = await this.dbContext.ResourceLinks.FindAsync(resourceLinkId);
+        if (existingResourceLink == null || existingResourceLink.LearningPathId != id)
+        {
+            return NotFound("Resource link not found for this path.");
+        }
+
+        // Delete the resource link
+        this.dbContext.ResourceLinks.Remove(existingResourceLink);
+        await this.dbContext.SaveChangesAsync();
+
+        return NoContent();
+    }
 }
