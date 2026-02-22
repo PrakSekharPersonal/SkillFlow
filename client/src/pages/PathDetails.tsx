@@ -220,9 +220,7 @@ const PathDetails = () => {
                       />
                       <span
                         className={
-                          m.isCompleted || path.isCompleted
-                            ? "line-through text-slate-400"
-                            : ""
+                          m.isCompleted ? "line-through text-slate-400" : ""
                         }
                       >
                         {m.title}

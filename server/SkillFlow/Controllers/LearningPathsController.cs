@@ -128,10 +128,22 @@ public class LearningPathsController : ControllerBase
     public async Task<IActionResult> UpdatePath(int id, CreateLearningPathDto updateDto)
     {
         // Find the existing record in the database
-        var path = await this.dbContext.LearningPaths.FindAsync(id);
+        var path = await this
+            .dbContext.LearningPaths.Include(p => p.Milestones)
+            .FirstOrDefaultAsync(p => p.Id == id);
         if (path == null)
-        {
             return NotFound();
+
+        // Check if the user is transitioning the path from Active to Completed or vice versa.
+        bool isNewlyCompleted = !path.IsCompleted && updateDto.IsCompleted;
+        bool isBeingReopened = path.IsCompleted && !updateDto.IsCompleted;
+        if (isNewlyCompleted || isBeingReopened)
+        {
+            // If reopening, mark all milestones as incomplete. If completing, mark all milestones as complete.
+            foreach (var milestone in path.Milestones)
+            {
+                milestone.IsCompleted = isNewlyCompleted;
+            }
         }
 
         // Update the fields
@@ -159,21 +171,28 @@ public class LearningPathsController : ControllerBase
         // Check if the milestone exists and if it belongs to the correct path
         var existingMilestone = await this.dbContext.Milestones.FindAsync(milestoneId);
         if (existingMilestone == null || existingMilestone.LearningPathId != id)
-        {
-            return NotFound("Milestone not found for this path.");
-        }
+            return NotFound("Milestone not found.");
 
-        // Update the IsCompleted status
+        // Update the milestone status
         existingMilestone.IsCompleted = milestone.IsCompleted;
+        await this.dbContext.SaveChangesAsync();
 
-        // Save changes to the database
-        try
+        // Re-evaluate if the parent path should be marked as completed or not based on the status of all its milestones
+        var path = await this
+            .dbContext.LearningPaths.Include(p => p.Milestones)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (path != null && path.Milestones.Count != 0)
         {
-            await this.dbContext.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            return Conflict("The record was modified by another user.");
+            // Are all milestones completed?
+            bool allComplete = path.Milestones.All(m => m.IsCompleted);
+
+            // If the path's current state doesn't match the new reality, flip it!
+            if (path.IsCompleted != allComplete)
+            {
+                path.IsCompleted = allComplete;
+                await this.dbContext.SaveChangesAsync();
+            }
         }
 
         return NoContent();
