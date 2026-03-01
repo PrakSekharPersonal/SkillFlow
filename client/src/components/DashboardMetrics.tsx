@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import {
   PieChart,
   Pie,
-  Cell,
   Tooltip,
   LabelList,
   Legend,
@@ -11,15 +10,17 @@ import {
   XAxis,
   YAxis,
   ResponsiveContainer,
-  Sector,
 } from "recharts";
 import { LearningPath } from "../types";
+import { useUI } from "../context/UIContext";
 
 interface DashboardMetricsProps {
   paths: LearningPath[];
 }
 
 const DashboardMetrics = ({ paths }: DashboardMetricsProps) => {
+  const { theme } = useUI();
+
   const pieData = useMemo(() => {
     const completed = paths.filter((p) => p.isCompleted).length;
     const active = paths.length - completed;
@@ -67,10 +68,24 @@ const DashboardMetrics = ({ paths }: DashboardMetricsProps) => {
                 stroke="none"
               />
               <Tooltip
+                cursor={{
+                  fill:
+                    theme === "dark"
+                      ? "rgba(255,255,255,0.05)"
+                      : "rgba(148, 163, 184, 0.1)",
+                }}
                 contentStyle={{
                   borderRadius: "12px",
-                  border: "none",
+                  border:
+                    theme === "dark"
+                      ? "1px solid #334155"
+                      : "1px solid #e2e8f0",
+                  backgroundColor: theme === "dark" ? "#1e293b" : "#ffffff",
+                  color: theme === "dark" ? "#f8fafc" : "#0f172a",
                   boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                }}
+                itemStyle={{
+                  color: theme === "dark" ? "#cbd5e1" : "#475569",
                 }}
               />
               <Legend verticalAlign="bottom" height={36} />
@@ -104,11 +119,24 @@ const DashboardMetrics = ({ paths }: DashboardMetricsProps) => {
                   domain={[0, 100]}
                 />
                 <Tooltip
-                  cursor={{ fill: "rgba(148, 163, 184, 0.1)" }}
+                  cursor={{
+                    fill:
+                      theme === "dark"
+                        ? "rgba(255,255,255,0.05)"
+                        : "rgba(148, 163, 184, 0.1)",
+                  }}
                   contentStyle={{
                     borderRadius: "12px",
-                    border: "none",
-                    boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
+                    border:
+                      theme === "dark"
+                        ? "1px solid #334155"
+                        : "1px solid #e2e8f0",
+                    backgroundColor: theme === "dark" ? "#1e293b" : "#ffffff",
+                    color: theme === "dark" ? "#f8fafc" : "#0f172a",
+                    boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                  }}
+                  itemStyle={{
+                    color: theme === "dark" ? "#cbd5e1" : "#475569",
                   }}
                 />
                 <Bar
@@ -138,8 +166,3 @@ const DashboardMetrics = ({ paths }: DashboardMetricsProps) => {
 };
 
 export default DashboardMetrics;
-
-const renderCustomSector = (props: any) => {
-  // We grab the color directly from our pieData payload
-  return <Sector {...props} fill={props.payload.color} />;
-};

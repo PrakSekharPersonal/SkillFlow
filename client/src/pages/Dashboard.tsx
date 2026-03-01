@@ -132,7 +132,7 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* NEW METRICS VISUALIZATION */}
+        {/* DASHBOARD METRICS VISUALIZATION */}
         <DashboardMetrics paths={paths} />
 
         {/* TOOLBAR: SEARCH & SORT */}
