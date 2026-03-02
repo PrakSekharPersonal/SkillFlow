@@ -82,12 +82,10 @@ const PathCard = ({ path, onRefresh }: PathCardProps) => {
       onClick={handleCardClick}
       className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full cursor-pointer"
     >
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex flex-col gap-2">
-          <span className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-bold px-3 py-1 rounded-full uppercase w-fit">
-            Path #{path.id}
-          </span>
-        </div>
+      <div className="flex justify-between items-center mb-4">
+        <span className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-bold px-3 py-1 rounded-full uppercase w-fit">
+          Path #{path.id}
+        </span>
 
         {/* STATUS + ACTION BUTTONS */}
         <div className="flex items-center gap-3">
