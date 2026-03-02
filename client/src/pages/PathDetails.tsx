@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { LearningPath, Milestone, ResourceLink } from "../types";
 import { useUI } from "../context/UIContext";
+import ReactMarkdown from "react-markdown";
 
 const PathDetails = () => {
   const { id } = useParams(); // Get path ID from URL
@@ -126,6 +127,25 @@ const PathDetails = () => {
       <div className="text-center py-20 dark:text-white">Path not found</div>
     );
 
+  let isOverdue = false;
+  let formattedTargetDate = null;
+
+  if (path.targetDate) {
+    const datePart = path.targetDate.split("T")[0];
+    const [year, month, day] = datePart.split("-");
+    const target = new Date(Number(year), Number(month) - 1, Number(day));
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    isOverdue = !path.isCompleted && target < today;
+    formattedTargetDate = target.toLocaleDateString(undefined, {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
   const totalMilestones = path.milestones?.length || 0;
   const completedMilestones =
     path.milestones?.filter((m) => m.isCompleted).length || 0;
@@ -149,10 +169,28 @@ const PathDetails = () => {
 
         {/* Header Section */}
         <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 mb-8">
-          <h1 className="text-3xl font-extrabold mb-4">{path.title}</h1>
-          <p className="text-slate-600 dark:text-slate-400 text-lg mb-6">
-            {path.description}
-          </p>
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
+            <h1 className="text-3xl font-extrabold flex-1">{path.title}</h1>
+
+            {/* Target Date Badge */}
+            {path.targetDate && (
+              <span
+                className={`shrink-0 text-xs font-bold px-3 py-1.5 rounded-md uppercase tracking-wider inline-flex items-center gap-2 h-fit
+                ${
+                  isOverdue
+                    ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                    : "bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300"
+                }`}
+              >
+                {isOverdue ? "⚠️ Overdue" : "🎯 Target Completion"}:{" "}
+                {formattedTargetDate}
+              </span>
+            )}
+          </div>
+
+          <div className="prose prose-slate dark:prose-invert max-w-none mb-8">
+            <ReactMarkdown>{path.description}</ReactMarkdown>
+          </div>
 
           {/* Progress Bar */}
           <div className="mb-2 flex justify-between text-sm font-bold text-slate-500">
@@ -170,7 +208,7 @@ const PathDetails = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* --- MILESTONES SECTION --- */}
+          {/* Milestones Section */}
           <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 h-fit">
             <h2 className="text-xl font-bold mb-4 flex justify-between items-center">
               Milestones

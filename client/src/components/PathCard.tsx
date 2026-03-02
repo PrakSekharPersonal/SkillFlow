@@ -5,6 +5,7 @@ import EditPathModal from "./EditPathModal";
 import DeleteModal from "./DeleteModal";
 import { useUI } from "../context/UIContext";
 import { useNavigate } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 
 interface PathCardProps {
   path: LearningPath;
@@ -53,15 +54,40 @@ const PathCard = ({ path, onRefresh }: PathCardProps) => {
     navigate(`/path/${path.id}`);
   };
 
+  let isOverdue = false;
+  let formattedTargetDate = null;
+
+  if (path.targetDate) {
+    // Grab only the YYYY-MM-DD part from the backend ISO string
+    const datePart = path.targetDate.split("T")[0];
+    const [year, month, day] = datePart.split("-");
+
+    // Force the date into local time at midnight (month is 0-indexed in JS)
+    const target = new Date(Number(year), Number(month) - 1, Number(day));
+
+    // Get today at exactly midnight for accurate comparison
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    isOverdue = !path.isCompleted && target < today;
+    formattedTargetDate = target.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
   return (
     <div
       onClick={handleCardClick}
       className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full cursor-pointer"
     >
       <div className="flex justify-between items-start mb-4">
-        <span className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-bold px-2 py-2 rounded-full uppercase">
-          Path #{path.id}
-        </span>
+        <div className="flex flex-col gap-2">
+          <span className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-bold px-3 py-1 rounded-full uppercase w-fit">
+            Path #{path.id}
+          </span>
+        </div>
 
         {/* STATUS + ACTION BUTTONS */}
         <div className="flex items-center gap-3">
@@ -142,12 +168,25 @@ const PathCard = ({ path, onRefresh }: PathCardProps) => {
       >
         {path.title}
       </h3>
-      <p className="text-slate-500 dark:text-slate-400 text-sm flex-grow mb-6">
-        {path.description}
-      </p>
+      <div className="text-slate-500 dark:text-slate-400 text-sm flex-grow mb-6 line-clamp-3 prose prose-sm dark:prose-invert">
+        <ReactMarkdown>{path.description}</ReactMarkdown>
+      </div>
 
       <div className="pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center text-[11px] text-slate-400">
         <span>Added on {new Date(path.createdAt).toLocaleDateString()}</span>
+
+        {path.targetDate && (
+          <span
+            className={`font-bold px-2 py-1 rounded-md uppercase tracking-wider flex items-center gap-1
+            ${
+              isOverdue
+                ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                : "bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300"
+            }`}
+          >
+            {isOverdue ? "⚠️ Overdue" : "🎯 Target"}: {formattedTargetDate}
+          </span>
+        )}
       </div>
 
       <div onClick={(e) => e.stopPropagation()}>

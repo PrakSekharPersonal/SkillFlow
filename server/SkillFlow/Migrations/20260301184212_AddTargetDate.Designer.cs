@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SkillFlow.Data;
@@ -11,9 +12,11 @@ using SkillFlow.Data;
 namespace SkillFlow.Migrations
 {
     [DbContext(typeof(SkillFlowDbContext))]
-    partial class SkillFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260301184212_AddTargetDate")]
+    partial class AddTargetDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import axios from "axios";
 import { LearningPath } from "../types";
 import { useUI } from "../context/UIContext";
+import SimpleMdeReact from "react-simplemde-editor";
+import "easymde/dist/easymde.min.css";
 
 interface EditPathModalProps {
   isOpen: boolean;
@@ -20,6 +22,7 @@ const EditPathModal = ({
   const [formData, setFormData] = useState({
     title: path.title,
     description: path.description,
+    targetDate: path.targetDate ? path.targetDate.split("T")[0] : "",
   });
 
   const API_URL = `http://localhost:5142/api/learningpaths/${path.id}`;
@@ -27,18 +30,40 @@ const EditPathModal = ({
 
   // Sync state whenever the path prop changes
   useEffect(() => {
-    setFormData({ title: path.title, description: path.description });
+    setFormData({
+      title: path.title,
+      description: path.description,
+      targetDate: path.targetDate ? path.targetDate.split("T")[0] : "",
+    });
   }, [path, isOpen]);
 
   // Has the form changed from the original data?
   const isChanged =
-    formData.title !== path.title || formData.description !== path.description;
-  const isInvalid = formData.title.trim() === "";
+    formData.title !== path.title ||
+    formData.description !== path.description ||
+    formData.targetDate !==
+      (path.targetDate ? path.targetDate.split("T")[0] : "");
+
+  const mdeOptions = useMemo(
+    () => ({
+      spellChecker: false,
+      placeholder:
+        "Write your path description, notes, or code snippets here in Markdown...",
+      status: false,
+    }),
+    [],
+  );
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.put(API_URL, formData);
+      await axios.put(API_URL, {
+        ...formData,
+        isCompleted: path.isCompleted,
+        targetDate: formData.targetDate
+          ? new Date(formData.targetDate).toISOString()
+          : null,
+      });
       showToast("Path Updated Successfully!", "success");
 
       onSuccess();
@@ -58,7 +83,7 @@ const EditPathModal = ({
         className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
         onClick={onClose}
       ></div>
-      <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-8 border border-slate-200 dark:border-slate-700">
+      <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-2xl p-6 md:p-8 z-10 animate-fade-in-up">
         <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-6">
           Edit Learning Path
         </h2>
@@ -76,18 +101,36 @@ const EditPathModal = ({
               className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:bg-slate-700 dark:text-slate-100"
             />
           </div>
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1">
-              Description
+
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              Target Completion Date (Optional)
             </label>
-            <textarea
-              value={formData.description || ""}
+            <input
+              type="date"
+              value={formData.targetDate || ""}
               onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
+                setFormData({ ...formData, targetDate: e.target.value })
               }
-              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:bg-slate-700 dark:text-slate-100 h-32"
+              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 dark:text-white transition-all"
             />
           </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              Description / Notes
+            </label>
+            <div className="prose-sm dark:prose-invert max-w-none">
+              <SimpleMdeReact
+                value={formData.description}
+                onChange={(value) =>
+                  setFormData({ ...formData, description: value })
+                }
+                options={mdeOptions}
+              />
+            </div>
+          </div>
+
           <div className="flex space-x-3 pt-4">
             <button
               type="button"

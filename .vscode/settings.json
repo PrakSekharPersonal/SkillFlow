@@ -2,8 +2,10 @@
     "cSpell.ignoreWords": [
         "Dtos",
         "Npgsql",
+        "easymde",
         "learningpaths",
         "resourcelinks",
+        "simplemde",
         "skillflow"
     ]
 }

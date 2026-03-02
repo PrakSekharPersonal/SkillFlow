@@ -11,10 +11,16 @@ namespace SkillFlow.Dtos
         string? Description,
         DateTime CreatedAt,
         bool IsCompleted,
+        DateTime? TargetDate,
         List<Milestone> Milestones,
         List<ResourceLink> ResourceLinks
     );
 
     // This is what we receive from the React frontend.
-    public record CreateLearningPathDto(string Title, string? Description, bool IsCompleted);
+    public record CreateLearningPathDto(
+        string Title,
+        string? Description,
+        bool IsCompleted,
+        DateTime? TargetDate
+    );
 }

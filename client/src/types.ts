@@ -18,6 +18,7 @@ export interface LearningPath {
   description: string;
   createdAt: string;
   isCompleted: boolean;
+  targetDate?: string;
   milestones?: Milestone[];
   resourceLinks?: ResourceLink[];
 }

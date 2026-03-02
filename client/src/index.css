@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* This enables manual dark mode in Tailwind v4 */
 @theme {
@@ -10,4 +11,25 @@
 
 * {
   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* The editor is white by default, these lines force it to respect your dark theme */
+.dark .editor-toolbar {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+.dark .editor-toolbar > button {
+  color: #cbd5e1 !important;
+}
+.dark .editor-toolbar > button:hover {
+  background-color: #334155;
+}
+.dark .CodeMirror {
+  background-color: #0f172a;
+  color: #f8fafc;
+  border-color: #334155;
+}
+.dark .editor-preview {
+  background-color: #0f172a;
+  color: #f8fafc;
 }

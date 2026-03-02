@@ -10,11 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.1.18",
     "axios": "^1.13.5",
+    "easymde": "^2.20.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.13.0",
+    "react-simplemde-editor": "^5.2.0",
     "recharts": "^3.7.0"
   },
   "devDependencies": {

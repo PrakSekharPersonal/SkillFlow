@@ -29,6 +29,7 @@ public class LearningPathsController : ControllerBase
                 p.Description,
                 p.CreatedAt,
                 p.IsCompleted,
+                p.TargetDate,
                 p.Milestones,
                 p.ResourceLinks
             ))
@@ -56,6 +57,7 @@ public class LearningPathsController : ControllerBase
             path.Description,
             path.CreatedAt,
             path.IsCompleted,
+            path.TargetDate,
             path.Milestones,
             path.ResourceLinks
         );
@@ -72,6 +74,7 @@ public class LearningPathsController : ControllerBase
             Title = createDto.Title,
             Description = createDto.Description,
             IsCompleted = createDto.IsCompleted || false,
+            TargetDate = createDto.TargetDate ?? null,
         };
 
         // Save to database
@@ -85,6 +88,7 @@ public class LearningPathsController : ControllerBase
             path.Description,
             path.CreatedAt,
             path.IsCompleted,
+            path.TargetDate,
             path.Milestones,
             path.ResourceLinks
         );
@@ -150,6 +154,7 @@ public class LearningPathsController : ControllerBase
         path.Title = updateDto.Title;
         path.Description = updateDto.Description;
         path.IsCompleted = updateDto.IsCompleted;
+        path.TargetDate = updateDto.TargetDate ?? path.TargetDate;
 
         // Save changes to the database
         try
